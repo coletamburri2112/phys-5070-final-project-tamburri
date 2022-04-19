@@ -1,10 +1,8 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar  9 12:15:45 2022
 
-@author: owner
-"""
+## Code to run functions in fl_funcs.py - shear lines are new as of April 2022
+
 import fl_funcs
 from fl_funcs import exponential
 from fl_funcs import exponential_neg

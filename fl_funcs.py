@@ -7,7 +7,7 @@ Created on Tue Mar 22 07:09:33 2022
 """
 # Most recent version: 21 March 2022 by Cole Tamburri
 # University of Colorado Boulder
-# Advisors: Maria D. Kazachenko and Adam F. Kowalski
+# Pre-existing code for Computational Physics Project, Spring 2022
 
 # Major working functions for analysis of SDO/EVE 304 Angstrom light curves,
 # SDO/AIA 1600 Angstrom images and ribbon masks, and SDO/HMI magnetograms.
@@ -38,6 +38,10 @@ Created on Tue Mar 22 07:09:33 2022
 # Plotting and data presentation routines are also below, which includes an
 # animation showing the timing of separation, elongation, and chromospheric
 # line light curves.
+
+# Modification: 19 April 2022 - cleanup of existing code
+# Modification: 19 April 2022 - development of code to determine shear between
+# flare ribbons
 
 from os.path import dirname, join as pjoin
 import scipy.io as sio
