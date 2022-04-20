@@ -92,8 +92,119 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                     
     return aia_neg_rem_shear, aia_pos_rem_shear
                 
+# find left and rightmost pixels
+
+def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
+    lr_coord_pos_shear = np.zeros([len(aia_pos_rem_shear),4])
+    lr_coord_neg_shear = np.zeros([len(aia_neg_rem_shear),4])
+    
+    for i in range(len(aia_pos_rem_shear)):
+        left_x = 0
+        left_y = 0
+        right_x = 0
+        right_y = 0
+        
+        for k in range(len(aia_pos_rem_shear[1])):
+            for j in range(len(aia_pos_rem_shear[0])):
+                if aia_pos_rem_shear[i,j,k] == 1:
+                    left_x = k
+                    left_y = j
+                    break
+                
+            if left_x != 0:
+                break
+            
+        for k in range(len(aia_pos_rem_shear[1])-1,0,-1):
+            for j in range(len(aia_pos_rem_shear[0])):
+                if aia_pos_rem_shear[i,j,k] == 1:
+                    right_x = k
+                    right_y = j
+                    break
+            if right_x != 0:
+                break
+            
+        lr_coord_pos_shear[i,:] = [left_x,left_y,right_x,right_y]
+        
+    for i in range(len(aia_neg_rem_shear)):
+        left_x = 0
+        left_y = 0
+        right_x = 0
+        right_y = 0
+        
+        for k in range(len(aia_neg_rem_shear[1])):
+            for j in range(len(aia_neg_rem_shear[0])):
+                if aia_neg_rem_shear[i,j,k] == 1:
+                    left_x = k
+                    left_y = j
+                    break
+                
+            if left_x != 0:
+                break
+            
+        for k in range(len(aia_neg_rem_shear[1])-1,0,-1):
+            for j in range(len(aia_neg_rem_shear[0])):
+                if aia_neg_rem_shear[i,j,k] == 1:
+                    right_x = k
+                    right_y = j
+                    break
+            if right_x != 0:
+                break
+            
+        lr_coord_neg_shear[i,:] = [left_x,left_y,right_x,right_y]
+        
+        return lr_coord_neg_shear, lr_coord_pos_shear
+    
+def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
+    left_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
+    right_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
+    pil_left_near_pos_shear = np.zeros([len(left_pil_dist_pos_shear),3])
+    pil_right_near_pos_shear = np.zeros([len(right_pil_dist_pos_shear),3])
+    left_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
+    right_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
+    pil_left_near_neg_shear = np.zeros([len(left_pil_dist_neg_shear),3])
+    pil_right_near_neg_shear = np.zeros([len(right_pil_dist_neg_shear),3])
+    
+    for i in range(len(lr_coord_pos_shear)):
+        left_x,left_y,right_x,right_y = lr_coord_pos_shear[i]
+        for j in range(len(ivs_sort)):
+            left_pil_dist_pos_shear[i,j] = np.sqrt((left_x - ivs_sort[j])**2+
+                                                   (left_y - dvs_sort[j])**2)
+            right_pil_dist_pos_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
+                                                   (right_y - dvs_sort[j])**2)
+            
+    for i in range(len(left_pil_dist_pos_shear)):
+        ind = np.where(left_pil_dist_pos_shear[i]==np.min(left_pil_dist_pos_shear[i]))
+        pil_left_near_pos_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
+                                        ind[0][0]]
+    
+    for j in range(len(right_pil_dist_neg_shear)):
+        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        
+    for i in range(len(lr_coord_neg_shear)):
+        left_x,left_y,right_x,right_y = lr_coord_neg_shear[i]
+        for j in range(len(ivs_sort)):
+            left_pil_dist_neg_shear[i,j] = np.sqrt((left_x - ivs_sort[j])**2+
+                                                   (left_y - dvs_sort[j])**2)
+            right_pil_dist_neg_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
+                                                   (right_y - dvs_sort[j])**2)
+            
+    for i in range(len(left_pil_dist_neg_shear)):
+        ind = np.where(left_pil_dist_neg_shear[i]==np.min(left_pil_dist_neg_shear[i]))
+        pil_left_near_neg_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
+                                        ind[0][0]]
+    
+    for j in range(len(right_pil_dist_neg_shear)):
+        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        
+    return pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
+        pil_left_near_neg_shear
+            
+    
+    
                     
-#### EXISTING CODE BELOW THIS LINE ####
+#### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
 def conv_facts():
     """
     Conversion factors for images.
