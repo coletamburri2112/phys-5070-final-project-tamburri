@@ -200,8 +200,52 @@ def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
         
     return pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
         pil_left_near_neg_shear
-            
+        
+# Determination of guide field length - pil-parallel component of magnetic field
+def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
+                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil):
+    guide_left = []
+    guide_right = []
     
+    for i in range(len(pil_left_near_pos_shear)):
+        posin = int(pil_left_near_pos_shear[i,2])
+        negin = int(pil_left_near_neg_shear[i,2])
+        if posin > negin:
+            curvei = sortedpil[negin:posin, :]
+        else:
+            curvei = -sortedpil[posin:negin, :]
+        guide_left.append(curve_length(curvei))
+        
+    for i in range(len(pil_right_near_pos_shear)):
+        posin = int(pil_right_near_pos_shear[i,2])
+        negin = int(pil_right_near_neg_shear[i,2])
+        if posin > negin:
+            curvei = sortedpil[negin:posin, :]
+        else:
+            curvei = -sortedpil[posin:negin, :]
+        guide_right.append(curve_length(curvei))
+        
+    return guide_right, guide_left
+
+def gfrcalc(guide_left, guide_right, distneg_med, distpos_med):
+    left_gfr = guide_left/(distneg_med+distpos_med)
+    right_gfr = guide_right/(distneg_med+distneg_med)
+    
+    return left_gfr, right_gfr
+
+def plt_gfr(times,right_gfr,left_gfr,flnum):
+    timelab = range(0,24*len(times),24)
+    s = str(times[0])
+    fig,ax = plt.subplots(figsize=(13,7))
+    ax.scatter(timelab,right_gfr,c='red',label='GFR proxy, right')
+    ax.scatter(timelab,left_gfr,c='blue',label='GFR proxy, left')
+    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
+    ax.set_ylabel('GFR Proxy',font='Times New Roman',fontsize=18)
+    ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
+    ax.grid(0)
+    ax.legend(fontsize=15)
+    fig.savefig(str(flnum) + '_gfr.png')
+    return None
     
                     
 #### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
