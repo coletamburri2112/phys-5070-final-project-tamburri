@@ -224,3 +224,28 @@ print("Ribbon Area Plot")
 
 fl_funcs_proj.rib_area_plt(dt1600, poptpos, poptneg, flnum, pos_area_pix,
                       neg_area_pix, peak_pos, peak_neg, exp_ind)
+
+## BEGIN SHEAR PROCESSING CODE, ADDED 20 April 2022 ##
+
+aia_neg_rem_shear, aia_pos_rem_shear = fl_funcs_proj.\
+    shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y)
+    
+lr_coord_neg_shear, lr_coord_pos_shear = \
+    fl_funcs_proj.leftrightshear(aia_pos_rem_shear,aia_neg_rem_shear)
+    
+pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
+    pil_left_near_neg_shear = fl_funcs_proj.sheardists(lr_coord_pos_shear, 
+                                                       lr_coord_neg_shear,
+                                                       ivs_sort, dvs_sort)
+    
+guide_right, guide_left = fl_funcs_proj.guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
+                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil)
+
+left_gfr, right_gfr = fl_funcs_proj.plt_gfr(guide_left, guide_right, distneg_med, distpos_med)
+
+fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
+
+
+    
+
+

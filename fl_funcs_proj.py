@@ -92,8 +92,163 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                     
     return aia_neg_rem_shear, aia_pos_rem_shear
                 
+# find left and rightmost pixels
+
+def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
+    lr_coord_pos_shear = np.zeros([len(aia_pos_rem_shear),4])
+    lr_coord_neg_shear = np.zeros([len(aia_neg_rem_shear),4])
+    
+    for i in range(len(aia_pos_rem_shear)):
+        left_x = 0
+        left_y = 0
+        right_x = 0
+        right_y = 0
+        
+        for k in range(len(aia_pos_rem_shear[1])):
+            for j in range(len(aia_pos_rem_shear[0])):
+                if aia_pos_rem_shear[i,j,k] == 1:
+                    left_x = k
+                    left_y = j
+                    break
+                
+            if left_x != 0:
+                break
+            
+        for k in range(len(aia_pos_rem_shear[1])-1,0,-1):
+            for j in range(len(aia_pos_rem_shear[0])):
+                if aia_pos_rem_shear[i,j,k] == 1:
+                    right_x = k
+                    right_y = j
+                    break
+            if right_x != 0:
+                break
+            
+        lr_coord_pos_shear[i,:] = [left_x,left_y,right_x,right_y]
+        
+    for i in range(len(aia_neg_rem_shear)):
+        left_x = 0
+        left_y = 0
+        right_x = 0
+        right_y = 0
+        
+        for k in range(len(aia_neg_rem_shear[1])):
+            for j in range(len(aia_neg_rem_shear[0])):
+                if aia_neg_rem_shear[i,j,k] == 1:
+                    left_x = k
+                    left_y = j
+                    break
+                
+            if left_x != 0:
+                break
+            
+        for k in range(len(aia_neg_rem_shear[1])-1,0,-1):
+            for j in range(len(aia_neg_rem_shear[0])):
+                if aia_neg_rem_shear[i,j,k] == 1:
+                    right_x = k
+                    right_y = j
+                    break
+            if right_x != 0:
+                break
+            
+        lr_coord_neg_shear[i,:] = [left_x,left_y,right_x,right_y]
+        
+        return lr_coord_neg_shear, lr_coord_pos_shear
+    
+def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
+    left_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
+    right_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
+    pil_left_near_pos_shear = np.zeros([len(left_pil_dist_pos_shear),3])
+    pil_right_near_pos_shear = np.zeros([len(right_pil_dist_pos_shear),3])
+    left_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
+    right_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
+    pil_left_near_neg_shear = np.zeros([len(left_pil_dist_neg_shear),3])
+    pil_right_near_neg_shear = np.zeros([len(right_pil_dist_neg_shear),3])
+    
+    for i in range(len(lr_coord_pos_shear)):
+        left_x,left_y,right_x,right_y = lr_coord_pos_shear[i]
+        for j in range(len(ivs_sort)):
+            left_pil_dist_pos_shear[i,j] = np.sqrt((left_x - ivs_sort[j])**2+
+                                                   (left_y - dvs_sort[j])**2)
+            right_pil_dist_pos_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
+                                                   (right_y - dvs_sort[j])**2)
+            
+    for i in range(len(left_pil_dist_pos_shear)):
+        ind = np.where(left_pil_dist_pos_shear[i]==np.min(left_pil_dist_pos_shear[i]))
+        pil_left_near_pos_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
+                                        ind[0][0]]
+    
+    for j in range(len(right_pil_dist_neg_shear)):
+        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        
+    for i in range(len(lr_coord_neg_shear)):
+        left_x,left_y,right_x,right_y = lr_coord_neg_shear[i]
+        for j in range(len(ivs_sort)):
+            left_pil_dist_neg_shear[i,j] = np.sqrt((left_x - ivs_sort[j])**2+
+                                                   (left_y - dvs_sort[j])**2)
+            right_pil_dist_neg_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
+                                                   (right_y - dvs_sort[j])**2)
+            
+    for i in range(len(left_pil_dist_neg_shear)):
+        ind = np.where(left_pil_dist_neg_shear[i]==np.min(left_pil_dist_neg_shear[i]))
+        pil_left_near_neg_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
+                                        ind[0][0]]
+    
+    for j in range(len(right_pil_dist_neg_shear)):
+        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        
+    return pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
+        pil_left_near_neg_shear
+        
+# Determination of guide field length - pil-parallel component of magnetic field
+def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
+                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil):
+    guide_left = []
+    guide_right = []
+    
+    for i in range(len(pil_left_near_pos_shear)):
+        posin = int(pil_left_near_pos_shear[i,2])
+        negin = int(pil_left_near_neg_shear[i,2])
+        if posin > negin:
+            curvei = sortedpil[negin:posin, :]
+        else:
+            curvei = -sortedpil[posin:negin, :]
+        guide_left.append(curve_length(curvei))
+        
+    for i in range(len(pil_right_near_pos_shear)):
+        posin = int(pil_right_near_pos_shear[i,2])
+        negin = int(pil_right_near_neg_shear[i,2])
+        if posin > negin:
+            curvei = sortedpil[negin:posin, :]
+        else:
+            curvei = -sortedpil[posin:negin, :]
+        guide_right.append(curve_length(curvei))
+        
+    return guide_right, guide_left
+
+def gfrcalc(guide_left, guide_right, distneg_med, distpos_med):
+    left_gfr = guide_left/(distneg_med+distpos_med)
+    right_gfr = guide_right/(distneg_med+distneg_med)
+    
+    return left_gfr, right_gfr
+
+def plt_gfr(times,right_gfr,left_gfr,flnum):
+    timelab = range(0,24*len(times),24)
+    s = str(times[0])
+    fig,ax = plt.subplots(figsize=(13,7))
+    ax.scatter(timelab,right_gfr,c='red',label='GFR proxy, right')
+    ax.scatter(timelab,left_gfr,c='blue',label='GFR proxy, left')
+    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
+    ax.set_ylabel('GFR Proxy',font='Times New Roman',fontsize=18)
+    ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
+    ax.grid(0)
+    ax.legend(fontsize=15)
+    fig.savefig(str(flnum) + '_gfr.png')
+    return None
+    
                     
-#### EXISTING CODE BELOW THIS LINE ####
+#### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
 def conv_facts():
     """
     Conversion factors for images.
