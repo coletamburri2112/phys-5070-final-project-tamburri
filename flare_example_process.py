@@ -208,7 +208,8 @@ rec_rate_pos, rec_rate_neg = fl_funcs_proj.rec_rate(rec_flux_pos, rec_flux_neg,
                                                dn1600, dt1600, peak_pos,
                                                peak_neg, flnum)
 
-## BEGIN SHEAR PROCESSING CODE, ADDED 20 April 2022 ##
+## BEGIN APPLICATION OF SHEAR PROCESSING CODE, ADDED 20 April 2022 - functions
+## from fl_funcs_proj.py##
 
 negylow = 400
 negyhi = int(round(med_y) + 100)
