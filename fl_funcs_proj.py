@@ -23,6 +23,8 @@ from scipy.spatial.distance import cdist
 import scipy.signal
 import matplotlib.dates as mdates
 from astropy.convolution import convolve, Gaussian2DKernel
+import gvar as gv
+import lsqfit
 
 ### SHEAR IDENTIFICATION CODE - 20 April 2022
 
@@ -248,6 +250,41 @@ def plt_gfr(times,right_gfr,left_gfr,flnum):
     return None
     
                     
+# Modeling flare ribbon area models - include in later analysis?
+def errorset(aia8_pos, aia8_neg):
+
+    pos_unc = np.zeros(len(aia8_pos))
+    neg_unc = np.zeros(len(aia8_neg))
+
+    for i in range(len(aia8_pos)):
+    #assume 90% chance that the machine is correct in identifying pixel
+        pos_mask = aia8_pos[i, :, :]
+        neg_mask = aia8_neg[i, :, :]
+        pos_area_step = np.sum(pos_mask)
+        neg_area_step = np.sum(neg_mask)
+        
+        pos_unc[i] = 0.1*pos_area_step
+        neg_unc[i] = 0.1*neg_area_step
+        
+    return pos_unc, neg_unc
+
+
+def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
+    pos_gvar = gv.gvar(pos_area,pos_unc)
+    neg_gvar = gv.gvar(neg_area,neg_unc)
+    s = str(times[0])    
+    fig,ax = plt.subplots(figsize=(13,7))
+    ax.errorbar(times, gv.mean(pos_gvar),yerr = gv.sdev(pos_gvar),label='Pos. Ribbon')
+    ax.errorbar(times, gv.mean(neg_gvar),yerr = gv.sdev(neg_gvar),label='Neg. Ribbon')
+    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
+    ax.set_ylabel('Ribbon Area',font='Times New Roman',fontsize=18)
+    ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
+    ax.grid(0)
+    ax.legend(fontsize=15)
+    fig.savefig(str(flnum) + '_gvarplot.png')
+    
+    return None
+    
 #### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
 def conv_facts():
     """

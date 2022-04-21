@@ -240,6 +240,9 @@ left_gfr, right_gfr = fl_funcs_proj.gfrcalc(guide_left, guide_right, distneg_med
 
 fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
 
+modstrt = 16
+modend = 29
+
     
 
 
