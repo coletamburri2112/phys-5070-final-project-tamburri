@@ -251,20 +251,20 @@ def plt_gfr(times,right_gfr,left_gfr,flnum):
     
                     
 # Modeling flare ribbon area models - include in later analysis?
-def errorset(aia8_pos, aia8_neg):
+def errorset(aia8_pos, aia8_neg, x):
 
     pos_unc = np.zeros(len(aia8_pos))
     neg_unc = np.zeros(len(aia8_neg))
 
     for i in range(len(aia8_pos)):
-    #assume 90% chance that the machine is correct in identifying pixel
+    #assume .x% chance that the machine is correct in identifying pixel
         pos_mask = aia8_pos[i, :, :]
         neg_mask = aia8_neg[i, :, :]
         pos_area_step = np.sum(pos_mask)
         neg_area_step = np.sum(neg_mask)
         
-        pos_unc[i] = 0.1*pos_area_step
-        neg_unc[i] = 0.1*neg_area_step
+        pos_unc[i] = x*pos_area_step
+        neg_unc[i] = x*neg_area_step
         
     return pos_unc, neg_unc
 
@@ -272,6 +272,7 @@ def errorset(aia8_pos, aia8_neg):
 def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
     pos_gvar = gv.gvar(pos_area,pos_unc)
     neg_gvar = gv.gvar(neg_area,neg_unc)
+
     s = str(times[0])    
     fig,ax = plt.subplots(figsize=(13,7))
     ax.errorbar(times, gv.mean(pos_gvar),yerr = gv.sdev(pos_gvar),label='Pos. Ribbon')
@@ -279,22 +280,43 @@ def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
     ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
     ax.set_ylabel('Ribbon Area',font='Times New Roman',fontsize=18)
     ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
-    ax.grid(0)
+    ax.grid()
     ax.legend(fontsize=15)
     fig.savefig(str(flnum) + '_gvarplot.png')
     
     return pos_gvar, neg_gvar
+def exp_for_lsqfit(x, a):
+    """
+    Defines exponential function.
 
-def lsqarea(stind,endind,exponential,pos_gvar,neg_gvar,times):
-    timeslim = times[stind,endind]
-    xlim = range(0, len(timeslim))
-    pos_gvar_lim = pos_gvar[stind,endind]
-    neg_gvar_lim = neg_gvar[stind,endind]
-    fitpos = lsqfit.nonlinear_fit(data=(xlim,pos_gvar_lim),fcn = exponential)
-    fitneg = lsqfit.nonlinear_fit(data=(xlim,neg_gvar_lim),fcn = exponential)
+    Parameters
+    ----------
+    x : float
+        Input x value for function.
+    a : float
+        Amplitude of exponential function.
+    b : float
+        Second parameter of exponential function.
+
+    Returns
+    -------
+    float
+        Output of exponential function.
+
+    """
+    return a[0] * np.exp(a[1] * x)
+ 
+def lsqarea(stind,endind,exp_for_lsqfit,pos_gvar,neg_gvar,times,poptpos,poptneg):
+    timeslim = times[stind:endind]
+    p0pos = [poptpos[0],poptpos[1]]
+    p0neg = [poptneg[0],poptneg[1]]
+    xlim = np.array(range(0, len(timeslim)))
+    pos_gvar_lim = pos_gvar[stind:endind]
+    neg_gvar_lim = neg_gvar[stind:endind]
+    fitpos = lsqfit.nonlinear_fit(data=(xlim,pos_gvar_lim),fcn = exp_for_lsqfit,p0=p0pos)
+    fitneg = lsqfit.nonlinear_fit(data=(xlim,neg_gvar_lim),fcn = exp_for_lsqfit,p0=p0neg)
     
-    return fitpos, fitneg
-    
+    return fitpos, fitneg   
     
 #### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
 def conv_facts():
