@@ -26,25 +26,15 @@ from astropy.convolution import convolve, Gaussian2DKernel
 
 ### SHEAR IDENTIFICATION CODE - 20 April 2022
 
-def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y, 
-                           pt_range = [-2,-1,1,2], poscrit = 6, negcrit = 6, 
-                           negylow = 400, negyhi = 0, negxlow = 300, 
-                           negxhi = 400, posylow = 0, posyhi = 0, posxlow = 350,
-                           posxhi = 0):
+def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,negylow,negyhi,
+                           posylow,posyhi,negxlow,negxhi,posxlow,posxhi,
+                           pt_range = [-2,-1,1,2], poscrit = 6, negcrit = 6):
     neg_rem_shear = np.zeros(np.shape(aia8_pos))
     pos_rem_shear = np.zeros(np.shape(aia8_neg))
     aia_pos_rem_shear = np.zeros(np.shape(aia8_pos))
     aia_neg_rem_shear = np.zeros(np.shape(aia8_neg))
     
-    negylow = int(round(med_y) - 100)
-    negyhigh = int(round(med_y) + 100)
-    negxlow = int(round(med_x) - 100)
-    negxhi = int(round(med_y) + 100)
-    
-    posylow = int(round(med_y) - 100)
-    posyhigh = int(round(med_y) + 100)
-    posxlow = int(round(med_x) - 100)
-    posxhi = int(round(med_y) + 100)
+
     
     for i in range(len(neg_rem_shear)):
         for j in range(len(neg_rem_shear[0])-2):
@@ -103,17 +93,14 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
         left_y = 0
         right_x = 0
         right_y = 0
-        
         for k in range(len(aia_pos_rem_shear[1])):
             for j in range(len(aia_pos_rem_shear[0])):
                 if aia_pos_rem_shear[i,j,k] == 1:
                     left_x = k
                     left_y = j
                     break
-                
             if left_x != 0:
                 break
-            
         for k in range(len(aia_pos_rem_shear[1])-1,0,-1):
             for j in range(len(aia_pos_rem_shear[0])):
                 if aia_pos_rem_shear[i,j,k] == 1:
@@ -122,7 +109,6 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
                     break
             if right_x != 0:
                 break
-            
         lr_coord_pos_shear[i,:] = [left_x,left_y,right_x,right_y]
         
     for i in range(len(aia_neg_rem_shear)):
@@ -130,17 +116,14 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
         left_y = 0
         right_x = 0
         right_y = 0
-        
         for k in range(len(aia_neg_rem_shear[1])):
             for j in range(len(aia_neg_rem_shear[0])):
                 if aia_neg_rem_shear[i,j,k] == 1:
                     left_x = k
                     left_y = j
                     break
-                
             if left_x != 0:
                 break
-            
         for k in range(len(aia_neg_rem_shear[1])-1,0,-1):
             for j in range(len(aia_neg_rem_shear[0])):
                 if aia_neg_rem_shear[i,j,k] == 1:
@@ -149,10 +132,9 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
                     break
             if right_x != 0:
                 break
-            
         lr_coord_neg_shear[i,:] = [left_x,left_y,right_x,right_y]
         
-        return lr_coord_neg_shear, lr_coord_pos_shear
+    return lr_coord_neg_shear, lr_coord_pos_shear
     
 def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
     left_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
@@ -229,7 +211,7 @@ def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
 
 def gfrcalc(guide_left, guide_right, distneg_med, distpos_med):
     left_gfr = guide_left/(distneg_med+distpos_med)
-    right_gfr = guide_right/(distneg_med+distneg_med)
+    right_gfr = guide_right/(distneg_med+distpos_med)
     
     return left_gfr, right_gfr
 

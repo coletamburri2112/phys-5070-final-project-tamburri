@@ -149,9 +149,9 @@ fl_funcs_proj.ribbon_elon_plot(lens_pos, lens_neg, times, pltstrt, flnum)
 print("Plotting Elongation with Periods")
 
 fl_funcs_proj.elon_period_plot(dpos_len, dneg_len, times, times1600, lens_pos_Mm,
-                          flnum, lens_neg_Mm, elonperiod_start_neg,
-                          elonperiod_start_pos, elonperiod_end_neg,
-                          elonperiod_end_pos)
+                                lens_neg_Mm, flnum, elonperiod_start_neg,
+                                elonperiod_start_pos, elonperiod_end_neg,
+                                elonperiod_end_pos)
 
 print("Plotting Separation with Periods")
 
@@ -185,9 +185,10 @@ print("Exponential curve fitting for the fluxes.")
 
 poptposflx, pcovposflx, poptnegflx, pcovnegflx, \
     poptpos, poptneg, pcovpos, pcovneg, rise_pos_flx, \
-    rise_neg_flx = fl_funcs_proj.exp_curve_fit(exp_ind, pos_pix, neg_pix,
-                                          exponential, exponential_neg,
-                                          pos_area, neg_area)
+    rise_neg_flx = fl_funcs_proj.exp_curve_fit(exp_ind, exp_ind, 
+                                               rec_flux_pos, rec_flux_neg,
+                                               exponential, exponential_neg, 
+                                               pos_area, neg_area)
 
 print("Exponential curve plot.")
 
@@ -207,7 +208,36 @@ rec_rate_pos, rec_rate_neg = fl_funcs_proj.rec_rate(rec_flux_pos, rec_flux_neg,
                                                dn1600, dt1600, peak_pos,
                                                peak_neg, flnum)
 
+## BEGIN SHEAR PROCESSING CODE, ADDED 20 April 2022 ##
 
+negylow = 400
+negyhi = int(round(med_y) + 100)
+negxlow = 300
+negxhi = 400
+
+posylow = int(round(med_y) - 100)
+posyhi = int(round(med_y) + 100)
+posxlow = 350
+posxhi = int(round(med_y) + 100)
+    
+aia_neg_rem_shear, aia_pos_rem_shear = fl_funcs_proj.\
+    shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,negylow,negyhi,
+                               posylow,posyhi,negxlow,negxhi,posxlow,posxhi)
+    
+lr_coord_neg_shear, lr_coord_pos_shear = \
+    fl_funcs_proj.leftrightshear(aia_pos_rem_shear,aia_neg_rem_shear)
+    
+pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
+    pil_left_near_neg_shear = fl_funcs_proj.sheardists(lr_coord_pos_shear, 
+                                                       lr_coord_neg_shear,
+                                                       ivs_sort, dvs_sort)
+    
+guide_right, guide_left = fl_funcs_proj.guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
+                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil)
+
+left_gfr, right_gfr = fl_funcs_proj.gfrcalc(guide_left, guide_right, distneg_med, distpos_med)
+
+fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
 
     
 
