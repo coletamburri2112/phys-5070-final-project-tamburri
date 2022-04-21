@@ -244,10 +244,22 @@ fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
 modstrt = 16
 modend = 29
 
-pos_unc, neg_unc = fl_funcs_proj.errorset(aia8_pos,aia8_neg)
+x = 0.1 
+
+pos_unc, neg_unc = fl_funcs_proj.errorset(aia8_pos,aia8_neg, x)
 pos_gvar, neg_gvar = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum)
-fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar,neg_gvar,times)
+fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar,neg_gvar,times,poptpos,poptneg)
 
-
-
+print(fitpos)
+print(fitneg)
+print('Fit is not very good, because error is low? With prob of 0.5 that pix are bright:')
+    
+x2 = 0.2
+pos_unc2, neg_unc2 = fl_funcs_proj.errorset(aia8_pos,aia8_neg, x2)
+pos_gvar2, neg_gvar2 = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc2, neg_unc2, times, flnum)
+fitpos2, fitneg2 = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar2,neg_gvar2,times,poptpos,poptneg)
+   
+print(fitpos2)
+print(fitneg2)
+print('A bit better.  So, we need a more appropriate guess for error.')
 
