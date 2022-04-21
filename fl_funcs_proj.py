@@ -283,7 +283,18 @@ def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
     ax.legend(fontsize=15)
     fig.savefig(str(flnum) + '_gvarplot.png')
     
-    return None
+    return pos_gvar, neg_gvar
+
+def lsqarea(stind,endind,exponential,pos_gvar,neg_gvar,times):
+    timeslim = times[stind,endind]
+    xlim = range(0, len(timeslim))
+    pos_gvar_lim = pos_gvar[stind,endind]
+    neg_gvar_lim = neg_gvar[stind,endind]
+    fitpos = lsqfit.nonlinear_fit(data=(xlim,pos_gvar_lim),fcn = exponential)
+    fitneg = lsqfit.nonlinear_fit(data=(xlim,neg_gvar_lim),fcn = exponential)
+    
+    return fitpos, fitneg
+    
     
 #### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
 def conv_facts():

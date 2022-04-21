@@ -243,6 +243,10 @@ fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
 modstrt = 16
 modend = 29
 
-    
+pos_unc, neg_unc = fl_funcs_proj.errorset(aia8_pos,aia8_neg)
+pos_gvar, neg_gvar = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum)
+fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exponential,pos_gvar,neg_gvar,times)
+
+
 
 
