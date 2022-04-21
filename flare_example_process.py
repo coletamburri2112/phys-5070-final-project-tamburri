@@ -6,6 +6,7 @@
 import fl_funcs_proj
 from fl_funcs_proj import exponential
 from fl_funcs_proj import exponential_neg
+from fl_funcs_proj import exp_for_lsqfit
 import numpy as np
 
 year = 2013
@@ -245,7 +246,7 @@ modend = 29
 
 pos_unc, neg_unc = fl_funcs_proj.errorset(aia8_pos,aia8_neg)
 pos_gvar, neg_gvar = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum)
-fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exponential,pos_gvar,neg_gvar,times)
+fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar,neg_gvar,times)
 
 
 
