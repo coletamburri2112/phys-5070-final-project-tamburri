@@ -223,8 +223,10 @@ posxlow = 350
 posxhi = int(round(med_y) + 100)
     
 aia_neg_rem_shear, aia_pos_rem_shear = fl_funcs_proj.\
-    shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,negylow,negyhi,
-                               posylow,posyhi,negxlow,negxhi,posxlow,posxhi)
+    shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,negylow= negylow,
+                           negyhi = negyhi,posylow=posylow,posyhi=posyhi,
+                           negxlow = negxlow,negxhi=negxhi,posxlow=posxlow,
+                           posxhi=posxhi)
     
 lr_coord_neg_shear, lr_coord_pos_shear = \
     fl_funcs_proj.leftrightshear(aia_pos_rem_shear,aia_neg_rem_shear)
