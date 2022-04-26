@@ -154,7 +154,7 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
             
         lr_coord_neg_shear[i,:] = [left_x,left_y,right_x,right_y]
         
-        return lr_coord_neg_shear, lr_coord_pos_shear
+    return lr_coord_neg_shear, lr_coord_pos_shear
     
 def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
     left_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
