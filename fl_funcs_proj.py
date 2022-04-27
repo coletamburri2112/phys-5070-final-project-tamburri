@@ -31,8 +31,63 @@ import lsqfit
 def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y, 
                            pt_range = [-2,-1,1,2], poscrit = 6, negcrit = 6, 
                            negylow = 400, negyhi = 0, negxlow = 300, 
-                           negxhi = 400, posylow = 0, posyhi = 0, posxlow = 350,
-                           posxhi = 0):
+                           negxhi = 400, posylow = 0, posyhi = 0,
+                           posxlow = 350, posxhi = 0):
+    """
+    Isolates ribbons with the shear algorithm in mind.
+
+    Parameters
+    ----------
+    aia8_neg : arr
+        Negative polarity array from AIA.
+    aia8_pos : arr
+        Positive polarity array from AIA
+    med_x : int
+        Median of x dimension.
+    med_y : int
+        Median of y dimension.
+    pt_range : arr, optional
+        Range of points to search around each pixel. The default is 
+        [-2,-1,1,2].
+    poscrit : int, optional
+        Minimum number of positive points a pixel must be surrounded by in
+        order to be counted. The default is 6.
+    negcrit : int, optional
+        Minimum number of negative points a pixel must be surrounded by in 
+        order to be counted. The default is 6.
+    negylow : int, optional
+        Low y-dimension of image to search through, negative ribbon. The 
+        default is 400.
+    negyhi : int, optional
+        High y-dimension of image to search through, negative ribbon. 
+        The default is 0.
+    negxlow : int, optional
+        Low x-dimension of image to search through, negative ribbon. The 
+        default is 300.
+    negxhi : int, optional
+        High x-dimension of image to search through, negative ribbon. 
+        The default is 400.
+    posylow : int, optional
+        Low y-dimension of image to search through, positive ribbon. The 
+        default is 0.
+    posyhi : int, optional
+        High y-dimension of image to search through, positive ribbon. The 
+        default is 0.
+    posxlow : int, optional
+        Low x-dimension of image to search through, positive ribbon. The 
+        default is 350.
+    posxhi : int, optional
+        High x-dimension of image to search through, positive ribbon. The 
+        default is 0.
+
+    Returns
+    -------
+    aia_neg_rem_shear : arr
+        AIA 1600 Angstrom images of negative ribbon, with spur pixels removed.
+    aia_pos_rem_shear : arr
+        AIA 1600 Angstrom images of positive ribbon, with spur pixels removed.
+
+    """
     neg_rem_shear = np.zeros(np.shape(aia8_pos))
     pos_rem_shear = np.zeros(np.shape(aia8_neg))
     aia_pos_rem_shear = np.zeros(np.shape(aia8_pos))
@@ -48,6 +103,7 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
     posxlow = int(round(med_x) - 100)
     posxhi = int(round(med_y) + 100)
     
+    # Search through negative ribbon and remove spur points.
     for i in range(len(neg_rem_shear)):
         for j in range(len(neg_rem_shear[0])-2):
             for k in range(len(neg_rem_shear[1])-2):
@@ -64,6 +120,7 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                 else:
                     neg_rem_shear[i,j,k] = 0
 
+    # Search through positive ribbon and remove spur points.
     for i in range(len(pos_rem_shear)):
         for j in range(len(pos_rem_shear[0])-2):
             for k in range(len(pos_rem_shear[1])-2):
@@ -80,6 +137,7 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                 else:
                     pos_rem_shear[i,j,k] = 0
     
+    # Limit ribbons to within desired range for analysis
     for i in range(len(aia8_neg)):
         for j in range(negylow,negyhi):
             for k in range(negxlow,negxhi):
@@ -97,9 +155,29 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
 # find left and rightmost pixels
 
 def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
+    """
+    Finds leftmost and rightmost pixels of each ribbon.
+
+    Parameters
+    ----------
+    aia_pos_rem_shear : arr
+        Images of isolated positive ribbons from above function.
+    aia_neg_rem_shear : arr
+        Images of isolated negative ribbons from above function.
+
+    Returns
+    -------
+    lr_coord_neg_shear : arr
+        Left and right coordinates of negative ribbon.
+    lr_coord_pos_shear : arr
+        Left and right coordinates of positive ribbon..
+
+    """
+    
     lr_coord_pos_shear = np.zeros([len(aia_pos_rem_shear),4])
     lr_coord_neg_shear = np.zeros([len(aia_neg_rem_shear),4])
     
+    # Find left and rightmost pixels for positive ribbon in each frame
     for i in range(len(aia_pos_rem_shear)):
         left_x = 0
         left_y = 0
@@ -127,6 +205,7 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
             
         lr_coord_pos_shear[i,:] = [left_x,left_y,right_x,right_y]
         
+    # The same, for negative ribbon.
     for i in range(len(aia_neg_rem_shear)):
         left_x = 0
         left_y = 0
@@ -157,15 +236,45 @@ def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
     return lr_coord_neg_shear, lr_coord_pos_shear
     
 def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
+    """
+    Find the position of the pil nearest to the extremes of each ribbon.
+
+    Parameters
+    ----------
+    lr_coord_pos_shear : arr
+        Left and rightmost pixels for the positive ribbon.
+    lr_coord_neg_shear : arr
+        Left and rightmost pixels for negative ribbon.
+    ivs_sort : arr
+        Independent variable indices for PIL.
+    dvs_sort : arr
+        Dependent variable indices for PIL.
+
+    Returns
+    -------
+    pil_right_near_pos_shear : arr
+        Indices of PIL point nearest positive ribbon, rightmost extreme.
+    pil_left_near_pos_shear : arr
+        Indices of PIL points nearest positive ribbon, leftmost extreme.
+    pil_right_near_neg_shear : arr
+        Indices of PIL points nearest negative ribbon, rightmost extreme.
+    pil_left_near_neg_shear : arr
+        Indices of PIL points nearest negative ribbon, leftmost extreme.
+
+    """
     left_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
-    right_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),len(ivs_sort)])
+    right_pil_dist_pos_shear = np.zeros([len(lr_coord_pos_shear),
+                                         len(ivs_sort)])
     pil_left_near_pos_shear = np.zeros([len(left_pil_dist_pos_shear),3])
     pil_right_near_pos_shear = np.zeros([len(right_pil_dist_pos_shear),3])
     left_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
-    right_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),len(ivs_sort)])
+    right_pil_dist_neg_shear = np.zeros([len(lr_coord_neg_shear),
+                                         len(ivs_sort)])
     pil_left_near_neg_shear = np.zeros([len(left_pil_dist_neg_shear),3])
     pil_right_near_neg_shear = np.zeros([len(right_pil_dist_neg_shear),3])
     
+    # Arrays of distances from all positive ribbon points to all PIL points, in
+    # each dimesion
     for i in range(len(lr_coord_pos_shear)):
         left_x,left_y,right_x,right_y = lr_coord_pos_shear[i]
         for j in range(len(ivs_sort)):
@@ -174,15 +283,21 @@ def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
             right_pil_dist_pos_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
                                                    (right_y - dvs_sort[j])**2)
             
+    # Find smallest distance, and the corresponding PIL point
     for i in range(len(left_pil_dist_pos_shear)):
-        ind = np.where(left_pil_dist_pos_shear[i]==np.min(left_pil_dist_pos_shear[i]))
-        pil_left_near_pos_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
-                                        ind[0][0]]
+        ind = np.where(left_pil_dist_pos_shear[i]==\
+                       np.min(left_pil_dist_pos_shear[i]))
+        pil_left_near_pos_shear[i,:] = [ivs_sort[ind[0][0]],
+                                        dvs_sort[ind[0][0]], ind[0][0]]
     
     for j in range(len(right_pil_dist_neg_shear)):
-        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
-        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        ind = np.where(right_pil_dist_neg_shear[j] ==\
+                       np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]], 
+                                         dvs_sort[ind[0][0]],ind[0][0]]
         
+    # Arrays of distances from all negative ribbon points to all PIL points, in
+    # each dimesion
     for i in range(len(lr_coord_neg_shear)):
         left_x,left_y,right_x,right_y = lr_coord_neg_shear[i]
         for j in range(len(ivs_sort)):
@@ -190,25 +305,56 @@ def sheardists(lr_coord_pos_shear, lr_coord_neg_shear, ivs_sort, dvs_sort):
                                                    (left_y - dvs_sort[j])**2)
             right_pil_dist_neg_shear[i,j] = np.sqrt((right_x - ivs_sort[j])**2+
                                                    (right_y - dvs_sort[j])**2)
-            
+     
+    # Find smallest distance, and the corresponding PIL point
     for i in range(len(left_pil_dist_neg_shear)):
-        ind = np.where(left_pil_dist_neg_shear[i]==np.min(left_pil_dist_neg_shear[i]))
-        pil_left_near_neg_shear[i,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],
-                                        ind[0][0]]
+        ind = np.where(left_pil_dist_neg_shear[i]==\
+                       np.min(left_pil_dist_neg_shear[i]))
+        pil_left_near_neg_shear[i,:] = [ivs_sort[ind[0][0]],
+                                        dvs_sort[ind[0][0]], ind[0][0]]
     
     for j in range(len(right_pil_dist_neg_shear)):
-        ind = np.where(right_pil_dist_neg_shear[j] == np.min(right_pil_dist_neg_shear[j]))
-        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],dvs_sort[ind[0][0]],ind[0][0]]
+        ind = np.where(right_pil_dist_neg_shear[j] ==\
+                       np.min(right_pil_dist_neg_shear[j]))
+        pil_right_near_neg_shear[j,:] = [ivs_sort[ind[0][0]],
+                                         dvs_sort[ind[0][0]],ind[0][0]]
         
-    return pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
-        pil_left_near_neg_shear
+    return pil_right_near_pos_shear, pil_left_near_pos_shear,\
+        pil_right_near_neg_shear, pil_left_near_neg_shear
         
-# Determination of guide field length - pil-parallel component of magnetic field
 def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
-                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil):
+                  pil_right_near_neg_shear, pil_left_near_neg_shear, 
+                  sortedpil):
+    """
+    Find length along the axis of the guide field, the PIL-parallel component 
+    of magnetic field.
+
+    Parameters
+    ----------
+    pil_right_near_pos_shear : arr
+        Indices of PIL point nearest positive ribbon, rightmost extreme.
+    pil_left_near_pos_shear : arr
+        Indices of PIL points nearest positive ribbon, leftmost extreme.
+    pil_right_near_neg_shear : arr
+        Indices of PIL points nearest negative ribbon, rightmost extreme.
+    pil_left_near_neg_shear : arr
+        Indices of PIL points nearest negative ribbon, leftmost extreme.
+    sortedpil : arr
+        Independent and dependent values of PIL, sorted along PIL.
+
+    Returns
+    -------
+    guide_right : arr
+        Guide field strength, right-hand side.
+    guide_left : arr
+        Guide field strength, left-hand side.
+
+    """
     guide_left = []
     guide_right = []
     
+    # Length of segment of PIL between the leftmost ends of positive and 
+    # negative ribbons
     for i in range(len(pil_left_near_pos_shear)):
         posin = int(pil_left_near_pos_shear[i,2])
         negin = int(pil_left_near_neg_shear[i,2])
@@ -218,6 +364,8 @@ def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
             curvei = -sortedpil[posin:negin, :]
         guide_left.append(curve_length(curvei))
         
+    # Length of segment of PIL between rightmost ends of positive and negative
+    # ribbons
     for i in range(len(pil_right_near_pos_shear)):
         posin = int(pil_right_near_pos_shear[i,2])
         negin = int(pil_right_near_neg_shear[i,2])
@@ -230,39 +378,105 @@ def guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
     return guide_right, guide_left
 
 def gfrcalc(guide_left, guide_right, distneg_med, distpos_med):
+    """
+    Determines guide field ratio, the ratio of the PIL-parallel component of 
+    magnetic field to the PIL-perpendicular component, a proxy for the magnetic
+    shear.
+
+    Parameters
+    ----------
+    guide_left : arr
+        Guide field strength, right-hand side.
+    guide_right : arr
+        Guide field strength, left-hand side.
+    distneg_med : arr
+        Distance from negative ribbon to PIL for each time step; from code for
+        separation.
+    distpos_med : arr
+        Distance from positive ribbon to PIL for each time step; from code for
+        separation.
+
+    Returns
+    -------
+    left_gfr : arr
+        Guide field ratio, left edge of ribbons.
+    right_gfr : arr
+        Guide field ratio, right edge of ribbons.
+
+    """
     left_gfr = guide_left/(distneg_med+distpos_med)
     right_gfr = guide_right/(distneg_med+distneg_med)
     
     return left_gfr, right_gfr
 
 def plt_gfr(times,right_gfr,left_gfr,flnum):
+    """
+    Plots guide field ratio for right and left edges of ribbons.
+
+    Parameters
+    ----------
+    times : arr
+        Times corresponding to AIA 1600 Angstrom images.
+    right_gfr : arr
+        Guide field ratio, right edge of ribbons.
+    left_gfr : arr
+        Guide field ratio, left edge of ribbons.
+    flnum : int
+        Flare number from RibbonDB database.
+
+    Returns
+    -------
+    None.
+
+    """
     timelab = range(0,24*len(times),24)
     s = str(times[0])
     fig,ax = plt.subplots(figsize=(13,7))
     ax.scatter(timelab,right_gfr,c='red',label='GFR proxy, right')
     ax.scatter(timelab,left_gfr,c='blue',label='GFR proxy, left')
-    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
+    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',
+                  fontsize=18)
     ax.set_ylabel('GFR Proxy',font='Times New Roman',fontsize=18)
     ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
     ax.grid(0)
     ax.legend(fontsize=15)
     fig.savefig(str(flnum) + '_gfr.png')
+    
     return None
     
-                    
-# Modeling flare ribbon area models - include in later analysis?
 def errorset(aia8_pos, aia8_neg, x):
+    """
+    In the absence of given error values for pixels in AIA 1600 Angstrom 
+    images, assign reasonable values.
 
+    Parameters
+    ----------
+    aia8_neg : arr
+        Negative polarity array from AIA.
+    aia8_pos : arr
+        Positive polarity array from AIA
+    x : float
+        Percentage chance that instrument correctly identifies pixel.
+
+    Returns
+    -------
+    pos_unc : TYPE
+        DESCRIPTION.
+    neg_unc : TYPE
+        DESCRIPTION.
+
+    """
     pos_unc = np.zeros(len(aia8_pos))
     neg_unc = np.zeros(len(aia8_neg))
 
     for i in range(len(aia8_pos)):
-    #assume .x% chance that the machine is correct in identifying pixel
+    #assume .x% chance that the instrument is correct in identifying pixel
         pos_mask = aia8_pos[i, :, :]
         neg_mask = aia8_neg[i, :, :]
         pos_area_step = np.sum(pos_mask)
         neg_area_step = np.sum(neg_mask)
         
+        # Sum probabilities for each identified pixel.
         pos_unc[i] = x*pos_area_step
         neg_unc[i] = x*neg_area_step
         
@@ -270,14 +484,43 @@ def errorset(aia8_pos, aia8_neg, x):
 
 
 def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
+    """
+    Plot gvar values for ribbon area models.
+
+    Parameters
+    ----------
+    pos_area : arr
+        Area of positive ribbon for each time step.
+    neg_area : arr
+        Area of negative ribbon for each time step.
+    pos_unc : arr
+        Uncertainty in positive ribbon area.
+    neg_unc : arr
+        Uncertainty in negative ribbon area.
+    times : arr
+        Times corresponding to images from AIA.
+    flnum : int
+        RibbonDB flare number.
+
+    Returns
+    -------
+    pos_gvar : gvar object
+        Positive ribbon area values with error.
+    neg_gvar : gvar object
+        Negative ribbon area values with error.
+
+    """
     pos_gvar = gv.gvar(pos_area,pos_unc)
     neg_gvar = gv.gvar(neg_area,neg_unc)
 
     s = str(times[0])    
     fig,ax = plt.subplots(figsize=(13,7))
-    ax.errorbar(times, gv.mean(pos_gvar),yerr = gv.sdev(pos_gvar),label='Pos. Ribbon')
-    ax.errorbar(times, gv.mean(neg_gvar),yerr = gv.sdev(neg_gvar),label='Neg. Ribbon')
-    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',fontsize=18)
+    ax.errorbar(times, gv.mean(pos_gvar),yerr = gv.sdev(pos_gvar),
+                label='Pos. Ribbon')
+    ax.errorbar(times, gv.mean(neg_gvar),yerr = gv.sdev(neg_gvar),
+                label='Neg. Ribbon')
+    ax.set_xlabel('Time [s since '+s[2:-2]+']',font='Times New Roman',
+                  fontsize=18)
     ax.set_ylabel('Ribbon Area',font='Times New Roman',fontsize=18)
     ax.set_title('Guide Field Ratio',font ='Times New Roman',fontsize=20)
     ax.grid()
@@ -285,6 +528,7 @@ def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times,flnum):
     fig.savefig(str(flnum) + '_gvarplot.png')
     
     return pos_gvar, neg_gvar
+
 def exp_for_lsqfit(x, a):
     """
     Defines exponential function.
@@ -294,9 +538,7 @@ def exp_for_lsqfit(x, a):
     x : float
         Input x value for function.
     a : float
-        Amplitude of exponential function.
-    b : float
-        Second parameter of exponential function.
+        Parameters of exponential function.
 
     Returns
     -------
@@ -306,19 +548,63 @@ def exp_for_lsqfit(x, a):
     """
     return a[0] * np.exp(a[1] * x)
  
-def lsqarea(stind,endind,exp_for_lsqfit,pos_gvar,neg_gvar,times,poptpos,poptneg):
+def lsqarea(stind,endind,exp_for_lsqfit,pos_gvar,neg_gvar,times,poptpos,
+            poptneg):
+    """
+    Least-squares fitting of ribbon areas.
+
+    Parameters
+    ----------
+    stind : int
+        Start index for model
+    endind : int
+        End index for model
+    exp_for_lsqfit : function
+        Function for exponential model.
+    pos_gvar : gvar
+        Positive ribbon areas and errors.
+    neg_gvar : gvar
+        Negative ribbon areas and errors.
+    times : arr
+        Times of images from SDO/AIA.
+    poptpos : arr
+        Coefficients of exponential model for ribbon area, positive ribbon. 
+        Used as initial guess.
+    poptneg : arr
+        Coefficients of exponential model for ribbon area, negative ribbon.
+        Used as initial guess.
+
+    Returns
+    -------
+    fitpos : arr
+        Result of fitting model to positive ribbon.
+    fitneg : arr
+        Result of fitting model to negative ribbon.
+
+    """
+    
     timeslim = times[stind:endind]
+    
+    # Establish "initial guesses"
     p0pos = [poptpos[0],poptpos[1]]
     p0neg = [poptneg[0],poptneg[1]]
+    
     xlim = np.array(range(0, len(timeslim)))
+    
+    # Isolate temporal region of interest
     pos_gvar_lim = pos_gvar[stind:endind]
     neg_gvar_lim = neg_gvar[stind:endind]
-    fitpos = lsqfit.nonlinear_fit(data=(xlim,pos_gvar_lim),fcn = exp_for_lsqfit,p0=p0pos)
-    fitneg = lsqfit.nonlinear_fit(data=(xlim,neg_gvar_lim),fcn = exp_for_lsqfit,p0=p0neg)
+    
+    # Perform nonlinear fits
+    fitpos = lsqfit.nonlinear_fit(data=(xlim,pos_gvar_lim),fcn = 
+                                  exp_for_lsqfit,p0=p0pos)
+    fitneg = lsqfit.nonlinear_fit(data=(xlim,neg_gvar_lim),fcn = 
+                                  exp_for_lsqfit,p0=p0neg)
     
     return fitpos, fitneg   
     
 #### PRE-EXISTING PROCESSING CODE BELOW THIS LINE ####
+
 def conv_facts():
     """
     Conversion factors for images.
