@@ -212,6 +212,7 @@ rec_rate_pos, rec_rate_neg = fl_funcs_proj.rec_rate(rec_flux_pos, rec_flux_neg,
 ## BEGIN APPLICATION OF SHEAR PROCESSING CODE, ADDED 20 April 2022 - functions
 ## from fl_funcs_proj.py##
 
+# Establish limits for ribbons corresponding to shear code.
 negylow = 400
 negyhi = int(round(med_y) + 100)
 negxlow = 300
@@ -222,44 +223,65 @@ posyhi = int(round(med_y) + 100)
 posxlow = 350
 posxhi = int(round(med_y) + 100)
     
+# Isolate ribbons appropriately for shear analysis
 aia_neg_rem_shear, aia_pos_rem_shear = fl_funcs_proj.\
     shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,negylow= negylow,
                            negyhi = negyhi,posylow=posylow,posyhi=posyhi,
                            negxlow = negxlow,negxhi=negxhi,posxlow=posxlow,
                            posxhi=posxhi)
-    
+   
+# Left and right coordinates of positive and negative ribbons
 lr_coord_neg_shear, lr_coord_pos_shear = \
     fl_funcs_proj.leftrightshear(aia_pos_rem_shear,aia_neg_rem_shear)
     
+# PIL pixels closest to the left and right coordinates of positive and negative
+# ribbons
 pil_right_near_pos_shear, pil_left_near_pos_shear, pil_right_near_neg_shear,\
     pil_left_near_neg_shear = fl_funcs_proj.sheardists(lr_coord_pos_shear, 
                                                        lr_coord_neg_shear,
                                                        ivs_sort, dvs_sort)
     
-guide_right, guide_left = fl_funcs_proj.guidefieldlen(pil_right_near_pos_shear, pil_left_near_pos_shear,
-                  pil_right_near_neg_shear, pil_left_near_neg_shear, sortedpil)
+# Guide field to the right and left edges of ribbons
+guide_right, guide_left = fl_funcs_proj.guidefieldlen(pil_right_near_pos_shear,
+                                                      pil_left_near_pos_shear,
+                                                      pil_right_near_neg_shear,
+                                                      pil_left_near_neg_shear, 
+                                                      sortedpil)
 
-left_gfr, right_gfr = fl_funcs_proj.gfrcalc(guide_left, guide_right, distneg_med, distpos_med)
+# Guide field ratio to the right and left edges of ribbons
+left_gfr, right_gfr = fl_funcs_proj.gfrcalc(guide_left, guide_right, 
+                                            distneg_med, distpos_med)
 
+# Plot guide field ratio
 fl_funcs_proj.plt_gfr(times,right_gfr,left_gfr,flnum)
 
+# Limit of timesteps for model fitting
 modstrt = 16
 modend = 29
 
+# Initial fraction of incorrectly-identified pixels
 x = 0.1 
 
+# Perform error analysis of model fitting
 pos_unc, neg_unc = fl_funcs_proj.errorset(aia8_pos,aia8_neg, x)
-pos_gvar, neg_gvar = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum)
-fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar,neg_gvar,times,poptpos,poptneg)
+pos_gvar, neg_gvar = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc, 
+                                             neg_unc, times, flnum)
+fitpos, fitneg = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar,
+                                       neg_gvar,times,poptpos,poptneg)
 
 print(fitpos)
 print(fitneg)
-print('Fit is not very good, because error is low? With prob of 0.5 that pix are bright:')
-    
+print('Fit is not very good, because error is low? With prob of 0.8 that pix \
+      are correctly identified:')
+  
+# Second fraction of incorrectly-identified pixels.  
 x2 = 0.2
 pos_unc2, neg_unc2 = fl_funcs_proj.errorset(aia8_pos,aia8_neg, x2)
-pos_gvar2, neg_gvar2 = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc2, neg_unc2, times, flnum)
-fitpos2, fitneg2 = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,pos_gvar2,neg_gvar2,times,poptpos,poptneg)
+pos_gvar2, neg_gvar2 = fl_funcs_proj.pltgvarex(pos_area, neg_area, pos_unc2, 
+                                               neg_unc2, times, flnum)
+fitpos2, fitneg2 = fl_funcs_proj.lsqarea(modstrt,modend,exp_for_lsqfit,
+                                         pos_gvar2,neg_gvar2,times,poptpos,
+                                         poptneg)
    
 print(fitpos2)
 print(fitneg2)
