@@ -27,8 +27,7 @@ from astropy.convolution import convolve, Gaussian2DKernel
 import gvar as gv
 import lsqfit
 
-# SHEAR IDENTIFICATION CODE - 20 April 2022
-
+# SHEAR IDENTIFICATION CODE - Added April 2022 for PHYS5070
 
 def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                            pt_range=[-2, -1, 1, 2], poscrit=6, negcrit=6,
@@ -155,7 +154,6 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
     return aia_neg_rem_shear, aia_pos_rem_shear
 
 # find left and rightmost pixels
-
 
 def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
     """
@@ -456,6 +454,7 @@ def plt_gfr(times, right_gfr, left_gfr, flnum, dt1600):
     return None
 
 
+# Below functions are for model fitting, Added April 2022 for PHYS5070
 def errorset(aia8_pos, aia8_neg, x):
     """
     In the absence of given error values for pixels in AIA 1600 Angstrom
@@ -524,12 +523,13 @@ def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum,dt1600):
     """
     pos_gvar = gv.gvar(pos_area, pos_unc)
     neg_gvar = gv.gvar(neg_area, neg_unc)
+    timelab = range(0, 24 * len(times), 24)
 
     s = str(dt1600[0])
     fig, ax = plt.subplots(figsize=(13, 7))
-    ax.errorbar(times, gv.mean(pos_gvar), yerr=gv.sdev(pos_gvar),
+    ax.errorbar(timelab, gv.mean(pos_gvar), yerr=gv.sdev(pos_gvar),
                 label='Pos. Ribbon')
-    ax.errorbar(times, gv.mean(neg_gvar), yerr=gv.sdev(neg_gvar),
+    ax.errorbar(timelab, gv.mean(neg_gvar), yerr=gv.sdev(neg_gvar),
                 label='Neg. Ribbon')
     ax.set_xlabel('Time [s since '+s[5:-7]+']', font='Times New Roman',
                   fontsize=18)
@@ -617,7 +617,8 @@ def lsqarea(stind, endind, exp_for_lsqfit, pos_gvar, neg_gvar, times, poptpos,
 
     return fitpos, fitneg
 
-# PRE-EXISTING PROCESSING CODE BELOW THIS LINE #
+# Code below this line is pre-existing, with the exception of minor changes
+# to plotting routines for visualization
 
 
 def conv_facts():
