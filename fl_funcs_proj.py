@@ -6,12 +6,8 @@ Created on Tue Mar 22 07:09:33 2022
 
 @author: owner
 """
-# Most recent version: 21 March 2022 by Cole Tamburri
+# Most recent version: 29 April 2022 by Cole Tamburri
 # University of Colorado Boulder
-# Contains Pre-existing code for Computational Physics Project, Spring 2022
-# Modification: 19 April 2022 - cleanup of existing code
-# Modification: 19 April 2022 - development of code to determine shear between
-# flare ribbons
 
 from os.path import dirname, join as pjoin
 import scipy.io as sio
