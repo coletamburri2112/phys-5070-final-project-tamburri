@@ -16,6 +16,11 @@ Final Version: 29 April 2022
  Some pre-existing code is necessary; new steps taken are identified both in the source code and
  the presentation Jupyter Notebook.
  
+A Continuous Integration setup with GitHub is unexplored - this is the only part of the project proposal
+not carried out to completion.  The error checking and integration tests developed in the Jupyter Notebook
+are comprehensive for presentation and error checking purposes, and should be sufficient for the purposes
+here.
+ 
 (1) In fl_funcs_proj.py:
 
 Major working functions for analysis of SDO/EVE 304 Angstrom light curves,
@@ -55,7 +60,7 @@ commenting and viewing.
 
 (3) In fermi_processing_proj.py:
 
-Creation of fermi HXR processing script ("") - processes data 
+Creation of fermi HXR processing script - processes data 
 downloaded from the OSPEX gui for the flare, which will give insight into the timing of 
 HXR emission and therefore particle acceleration for the flare.
  
