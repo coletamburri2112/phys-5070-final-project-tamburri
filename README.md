@@ -2,11 +2,11 @@
 
 # Description of existing code, transferred to github and commented:
 
-(1) In fl_funcs:
+(1) In fl_funcs_proj.py:
 Major working functions for analysis of SDO/EVE 304 Angstrom light curves,
 SDO/AIA 1600 Angstrom images and ribbon masks, and SDO/HMI magnetograms.
 Includes algorithm for determination of separation and elongation of both
-ribbons relative to the polarity inversion line. Flares able to beanalyzed
+ribbons relative to the polarity inversion line. Flares able to be analyzed
 are contained in the RibbonDB database (Kazachenko et al. 2017).  Prior to
 running this script, the user should obtain flare light curves and times
 corresponding to the modeled flares in this database, for which the
@@ -15,8 +15,8 @@ impulsiveness index has been determined previously.
 The polarity inversion line is determined by convolving the HMI masks
 associated for each flare with a Gaussian of predetermined length, then
 finding the major region of intersection between these and using the
-resulting heatmap to fit a fourth-order polynomial.  Details of separation
-and elongation methods relative to the PIL are included below.
+resulting heatmap to fit a fourth-order polynomial.  Computational details of separation
+and elongation methods relative to the PIL can be seen in the code.
 
 Reconnection rates and ribbon areas for both positive and negative ribbons
 are determined, and the values corresponding to the rise phase of the flare
@@ -29,26 +29,22 @@ motion, respectively) are used to find separation and elongation rates,
 through which significant periods of these two phases of ribbon motion can
 be identified.
 
-Plotting and data presentation routines are also below, which includes an
-animation showing the timing of separation, elongation, and chromospheric
-line light curves.
+Code for identification of magnetic shear is included, using the footpoints of magnetic loops
+as a guide for the orientation of the magnetic field overlying the PIL.
 
-(2) In high1_process.py:
-Processing of fl_funcs.py functions, up to the ribbon area plots
+Least-squares fitting and error determination relative to an exponential model are included
+for the ribbon area functions.
 
-EXPANSION AS PART OF COMPUTATIONAL PHYSICS PROJECT
+(2) In flare_example_process.py:
+Processing of fl_funcs_proj.py functions.  Reproduced in the presentation Jupyter Notebook for better
+commenting and viewing.
 
-(3) Creation of fermi HXR processing script ("fermi_processing.py")
- - Fourier transform of existing HXR light curve
- - Commenting
- - Cleanup 
+(3) Creation of fermi HXR processing script ("fermi_processing_proj.py") - processes data 
+downloaded from the OSPEX gui for the flare, which will give insight into the timing of 
+HXR emission and therefore particle acceleration for the flare.
  
- (4) Creation of new algorithm to identify shear in flare ribbons (functions included at the end of "fl_funcs.py")
- - Algorithm to determine shear of flare ribbons, a proxy for the PIL-perpendicular component of the magnetic field
- - Commenting and cleanup
- 
- (5) Testing: least-squares fitting for ribbon area, etc 
- 
- (6) pytest testing routines (testing_routines.py)
- 
- (7) Integrated error tests
+ (4) Testing: fin_proj_testing.ipynb includes unit testing, presentation and explanation of results, 
+ as well as integrated testing.  This notebook does some pre-processing of flare data, and then
+ delves deeply into the shear processing, ribbon area model fitting, and other new components
+ of the project.  Science background and comments as the process is carried out are included 
+ for clarity.
