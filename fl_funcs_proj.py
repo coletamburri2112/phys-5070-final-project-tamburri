@@ -25,6 +25,7 @@ import lsqfit
 
 # SHEAR IDENTIFICATION CODE - Added April 2022 for PHYS5070
 
+
 def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
                            pt_range=[-2, -1, 1, 2], poscrit=6, negcrit=6,
                            negylow=400, negyhi=0, negxlow=300,
@@ -150,6 +151,7 @@ def shear_ribbon_isolation(aia8_neg, aia8_pos, med_x, med_y,
     return aia_neg_rem_shear, aia_pos_rem_shear
 
 # find left and rightmost pixels
+
 
 def leftrightshear(aia_pos_rem_shear, aia_neg_rem_shear):
     """
@@ -490,7 +492,7 @@ def errorset(aia8_pos, aia8_neg, x):
     return pos_unc, neg_unc
 
 
-def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum,dt1600):
+def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum, dt1600):
     """
     Plot gvar values for ribbon area models.
 
