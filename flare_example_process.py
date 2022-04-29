@@ -1,8 +1,8 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Code to run functions in fl_funcs_proj.py - shear lines are new as of April
-# 2022
+# Code to run functions in fl_funcs_proj.py - lines new as of April
+# 2022 are noted
 
 import fl_funcs_proj
 from fl_funcs_proj import exponential
@@ -19,6 +19,11 @@ arnum = 11865
 xclnum = 1.7
 xcl = 'M'
 flnum = 1401
+
+# The first section of code is mostly pre-existing, with minor changes - 
+# entirely new code (shear, lsqfitting) is noted below but is included at the
+# end of the file by necessity.  All is reproduced in the jupyter notebook for
+# presentation.
 
 bestflarefile = "/Users/owner/Desktop/CU_Research/MAT_SOURCE/bestperf_more.mat"
 
@@ -218,8 +223,7 @@ rec_rate_pos, rec_rate_neg = fl_funcs_proj.rec_rate(rec_flux_pos, rec_flux_neg,
                                                     dn1600, dt1600, peak_pos,
                                                     peak_neg, flnum)
 
-# BEGIN APPLICATION OF SHEAR PROCESSING CODE, ADDED 20 April 2022 - functions
-# from fl_funcs_proj.py##
+# Begin code added April 2022 for PHYS5070 - reproduced in Jupyter Notebook
 
 # Establish limits for ribbons corresponding to shear code.
 negylow = 400
