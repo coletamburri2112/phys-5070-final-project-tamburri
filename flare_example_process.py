@@ -20,8 +20,8 @@ xclnum = 1.7
 xcl = 'M'
 flnum = 1401
 
-# The first section of code is mostly pre-existing, with minor changes - 
-# entirely new code (shear, lsqfitting) is noted below but is included at the
+# The first section of code is mostly pre-existing, with minor changes.
+# Entirely new code (shear, lsqfitting) is noted below but is included at the
 # end of the file by necessity.  All is reproduced in the jupyter notebook for
 # presentation.
 
