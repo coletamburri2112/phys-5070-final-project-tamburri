@@ -420,7 +420,7 @@ def gfrcalc(guide_left, guide_right, distneg_med, distpos_med):
     return left_gfr, right_gfr
 
 
-def plt_gfr(times, right_gfr, left_gfr, flnum):
+def plt_gfr(times, right_gfr, left_gfr, flnum, dt1600):
     """
     Plots guide field ratio for right and left edges of ribbons.
 
@@ -441,11 +441,11 @@ def plt_gfr(times, right_gfr, left_gfr, flnum):
 
     """
     timelab = range(0, 24*len(times), 24)
-    s = str(times[0])
+    s = str(dt1600[0])
     fig, ax = plt.subplots(figsize=(13, 7))
     ax.scatter(timelab, right_gfr, c='red', label='GFR proxy, right')
     ax.scatter(timelab, left_gfr, c='blue', label='GFR proxy, left')
-    ax.set_xlabel('Time [s since '+s[2:-2]+']', font='Times New Roman',
+    ax.set_xlabel('Time [s since '+s[5:-7]+']', font='Times New Roman',
                   fontsize=18)
     ax.set_ylabel('GFR Proxy', font='Times New Roman', fontsize=18)
     ax.set_title('Guide Field Ratio', font='Times New Roman', fontsize=20)
@@ -495,7 +495,7 @@ def errorset(aia8_pos, aia8_neg, x):
     return pos_unc, neg_unc
 
 
-def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum):
+def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum,dt1600):
     """
     Plot gvar values for ribbon area models.
 
@@ -525,13 +525,13 @@ def pltgvarex(pos_area, neg_area, pos_unc, neg_unc, times, flnum):
     pos_gvar = gv.gvar(pos_area, pos_unc)
     neg_gvar = gv.gvar(neg_area, neg_unc)
 
-    s = str(times[0])
+    s = str(dt1600[0])
     fig, ax = plt.subplots(figsize=(13, 7))
     ax.errorbar(times, gv.mean(pos_gvar), yerr=gv.sdev(pos_gvar),
                 label='Pos. Ribbon')
     ax.errorbar(times, gv.mean(neg_gvar), yerr=gv.sdev(neg_gvar),
                 label='Neg. Ribbon')
-    ax.set_xlabel('Time [s since '+s[2:-2]+']', font='Times New Roman',
+    ax.set_xlabel('Time [s since '+s[5:-7]+']', font='Times New Roman',
                   fontsize=18)
     ax.set_ylabel('Ribbon Area', font='Times New Roman', fontsize=18)
     ax.set_title('Guide Field Ratio', font='Times New Roman', fontsize=20)
@@ -3050,7 +3050,7 @@ def pil_poly_plot(X, Y, pil_mask_c, hmi_dat, ivs, dvs, conv_f, xarr_Mm,
     return None
 
 
-def ribbon_sep_plot(dist_pos, dist_neg, times, flnum, pltstrt):
+def ribbon_sep_plot(dist_pos, dist_neg, times, flnum, pltstrt, dt1600):
     """
     Plot ribbon separation values throughout flare.
 
@@ -3080,8 +3080,8 @@ def ribbon_sep_plot(dist_pos, dist_neg, times, flnum, pltstrt):
              markersize=10, label='median')
     ax1.legend(fontsize=15)
     ax1.grid()
-    s = str(times[0])
-    ax1.set_xlabel('Time [s since ' + s[2:-2] + ']', font='Times New Roman',
+    s = str(dt1600[0])
+    ax1.set_xlabel('Time [s since ' + s[5:-7] + ']', font='Times New Roman',
                    fontsize=15)
     ax1.set_ylabel('Cartesian Pixel Distance', font='Times New Roman',
                    fontsize=15)
@@ -3089,11 +3089,11 @@ def ribbon_sep_plot(dist_pos, dist_neg, times, flnum, pltstrt):
                   fontsize=25)
 
     # Plot separation, negative ribbon
-    ax2.plot(timelab[pltstrt:], dist_neg[pltstrt:], '-+', c='red',
+    ax2.plot(timelab[pltstrt:], dist_neg[pltstrt:], '-+', c='blue',
              markersize=10, label='median')
     ax2.legend(fontsize=15)
     ax2.grid()
-    ax2.set_xlabel('Time [s since ' + s[2:-2] + ']', font='Times New Roman',
+    ax2.set_xlabel('Time [s since ' + s[5:-7] + ']', font='Times New Roman',
                    fontsize=15)
     ax2.set_ylabel('Cartesian Pixel Distance', font='Times New Roman',
                    fontsize=15)
@@ -3105,7 +3105,7 @@ def ribbon_sep_plot(dist_pos, dist_neg, times, flnum, pltstrt):
     return None
 
 
-def ribbon_elon_plot(lens_pos, lens_neg, times, pltstrt, flnum):
+def ribbon_elon_plot(lens_pos, lens_neg, times, pltstrt, flnum, dt1600):
     """
     Plot ribbon elongation values throughout flare.
 
@@ -3140,8 +3140,8 @@ def ribbon_elon_plot(lens_pos, lens_neg, times, pltstrt, flnum):
              markersize=10, label='- Ribbon')
     ax1.legend(fontsize=15)
     ax1.grid()
-    s = str(times[0])
-    ax1.set_xlabel('Time [s since ' + s[2:-2] + ']', font='Times New Roman',
+    s = str(dt1600[0])
+    ax1.set_xlabel('Time [s since ' + s[5:-7] + ']', font='Times New Roman',
                    fontsize=17)
     ax1.set_ylabel('Cartesian Pixel Distance', font='Times New Roman',
                    fontsize=17)
